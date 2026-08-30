@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floppa RNG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <audio id="bg-music" src="bgm.mp3" autoplay loop></audio>
+
+  <div class="card">
+    <div id="cutscene-overlay" class="cutscene-overlay"></div>
+
+    <h1>🐱 Floppa RNG</h1>
+    <p class="subtitle">Roll for rare dictionary Floppas and submit them to Floppa Lord!</p>
+
+    <div class="button-wrapper">
+      <button id="roll-btn">Roll Floppa</button>
+      <div id="cooldown-overlay" class="cooldown-overlay"></div>
+    </div>
+
+    <div id="result" class="result-box hidden">
+      <span id="floppa-title" class="badge">THE CELESTIAL</span>
+      <h2 id="floppa-name">Voracious Floppa</h2>
+      <p id="floppa-rarity" class="rarity">Rarity: Exotic (0.1%)</p>
+      <p id="floppa-desc" class="desc">Meaning: "Wanting or devouring great quantities of food or knowledge."</p>
+      <button id="send-btn" class="send-btn">Send to Floppa Lord DM</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
