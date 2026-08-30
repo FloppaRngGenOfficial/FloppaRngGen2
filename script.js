@@ -41,7 +41,7 @@ document.getElementById('roll-btn').addEventListener('click', async () => {
   // Quick UI cleanup during screen flash
   setTimeout(() => {
     cutsceneOverlay.classList.remove('active');
-  }, 250);
+  }, 1200);
 
   let word = "mysterious";
   let definition = "A enigmatic entity from the dictionary.";
