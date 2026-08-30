@@ -15,7 +15,6 @@ let isCooldown = false;
 const bgMusic = document.getElementById('bg-music');
 const cutsceneOverlay = document.getElementById('cutscene-overlay');
 
-// Unblock audio on first interaction
 const startAudio = () => {
   if (bgMusic && bgMusic.paused) {
     bgMusic.volume = 0.4;
@@ -37,39 +36,55 @@ document.getElementById('roll-btn').addEventListener('click', async () => {
   const rollBtn = document.getElementById('roll-btn');
   const overlay = document.getElementById('cooldown-overlay');
 
-  // 1. Card Cutscene Fade
   cutsceneOverlay.classList.add('active');
 
-  // 2. Fetch dictionary word from API
-  let generatedName = "Mysterious Floppa";
+  // Quick UI cleanup during screen flash
+  setTimeout(() => {
+    cutsceneOverlay.classList.remove('active');
+  }, 250);
+
+  let word = "mysterious";
+  let definition = "A enigmatic entity from the dictionary.";
+
   try {
-    const response = await fetch("https://random-word-form.herokuapp.com/random/adjective");
-    const data = await response.json();
-    const rawWord = data[0];
-    const formattedWord = rawWord.charAt(0).toUpperCase() + rawWord.slice(1);
-    generatedName = `${formattedWord} Floppa`;
-  } catch (error) {
-    console.error("API error, fallback used:", error);
+    // 1. Fetch a batch of real dictionary adjectives directly from Datamuse
+    const dictRes = await fetch("https://api.datamuse.com/words?rel_jjb=thing&md=d&max=100");
+    const dictData = await dictRes.json();
+    
+    // Pick a completely random item from the dictionary response
+    const randomItem = dictData[Math.floor(Math.random() * dictData.length)];
+    word = randomItem.word;
+
+    // Pull definition if Datamuse provided one, otherwise query dictionary API
+    if (randomItem.defs && randomItem.defs.length > 0) {
+      // Clean up the definition string (removes part of speech prefixes like "adj\t")
+      definition = randomItem.defs[0].replace(/^[a-z]+\s+/, '');
+    }
+  } catch (err) {
+    console.error("Dictionary fetch error:", err);
   }
 
-  setTimeout(() => {
-    const baseAttr = rarities[Math.floor(Math.random() * rarities.length)];
+  const formattedWord = word.charAt(0).toUpperCase() + word.slice(1);
+  const baseAttr = rarities[Math.floor(Math.random() * rarities.length)];
 
-    currentRoll = {
-      name: generatedName,
-      title: baseAttr.title,
-      rarity: baseAttr.rarity,
-    };
+  currentRoll = {
+    name: `${formattedWord} Floppa`,
+    title: baseAttr.title,
+    rarity: baseAttr.rarity,
+    desc: definition
+  };
 
-    document.getElementById('floppa-title').innerText = currentRoll.title;
-    document.getElementById('floppa-name').innerText = currentRoll.name;
-    document.getElementById('floppa-rarity').innerText = `Rarity: ${currentRoll.rarity}`;
-    document.getElementById('result').classList.remove('hidden');
+  // Render to UI
+  document.getElementById('floppa-title').innerText = currentRoll.title;
+  document.getElementById('floppa-name').innerText = currentRoll.name;
+  document.getElementById('floppa-rarity').innerText = `Rarity: ${currentRoll.rarity}`;
+  
+  const descEl = document.getElementById('floppa-desc');
+  if (descEl) descEl.innerText = `Meaning: "${currentRoll.desc}"`;
 
-    cutsceneOverlay.classList.remove('active');
-  }, 400);
+  document.getElementById('result').classList.remove('hidden');
 
-  // 3. Cooldown Wipe
+  // Cooldown bar animation
   rollBtn.disabled = true;
   overlay.style.transition = 'none';
   overlay.style.transform = 'translateY(0%)';
@@ -87,7 +102,7 @@ document.getElementById('roll-btn').addEventListener('click', async () => {
 document.getElementById('send-btn').addEventListener('click', () => {
   if (!currentRoll) return;
 
-  const textToShare = `I rolled ${currentRoll.name}! [Title: ${currentRoll.title} | Rarity: ${currentRoll.rarity}]`;
+  const textToShare = `I rolled ${currentRoll.name}! [Title: ${currentRoll.title} | Rarity: ${currentRoll.rarity}]\nMeaning: ${currentRoll.desc}`;
   
   navigator.clipboard.writeText(textToShare);
   alert("Floppa roll copied! Paste (Cmd+V) this in your message to Floppa Lord.");
